@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "lex.h": "c",
+        "vadefs.h": "c"
+    }
+}
