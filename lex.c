@@ -10,79 +10,9 @@
 #include <limits.h>
 #include <stdarg.h>
 
-/* File IO Helpers */
-
-unsigned int lineno = 0;
-unsigned int columnno = 0;
-
-char _last_char = '\0';
-unsigned int _last_col = 0;
-bool _has_last = false;
-
-char getch(void){
-
-    char c;
-    if (_has_last){
-        c = _last_char;
-        _has_last = false;
-    } else {
-        c = fgetc(codefile);
-    }
-
-    if (feof(codefile)){
-        c = '\0';
-    }
-
-    _last_char = c;
-
-    if (c == '\n'){
-        lineno += 1;
-        _last_col = columnno;
-        columnno = 0;
-    } else if (c != '\0'){
-        columnno += 1;
-    }
-
-    return c;
-}
-
-char ungetch(void){
-    if(_has_last){
-        ERROR("Internal Error: Tried to unget character more than once at %ld (line %u, col %u)", ftell(codefile), lineno, columnno);
-    }
-
-    if (_last_char == '\0' || (lineno == 0 && columnno == 0)) {
-        return _last_char;
-    }
-
-    _has_last = true;
-
-    if (columnno == 0){
-        columnno = _last_col;
-        lineno -= 1;
-    } else {
-        columnno -= 1;
-    }
-
-    return _last_char;
-}
-
-char peekch(void) {
-    getch();
-    return ungetch();
-}
-
-void reset_io(void) {
-    lineno = 0;
-    columnno = 0;
-    _last_char = '\0';
-    _last_col = 0;
-    _has_last = false;
-}
-
 /* Error */
 
-void lex_err(const char* msg, ...) {
+void lex_err(unsigned int lineno, unsigned int columnno, const char* msg, ...) {
     va_list args;
     va_start(args, msg);
     vfprintf(stderr, msg, args);
@@ -210,7 +140,7 @@ Token lex_token(const char *s, unsigned int lineno, unsigned int columnno){
     long ival = strtol(s, &end, 10);
     if (end == s + strlen(s)){
         if (ival > INT_MAX || ival < INT_MIN){
-            lex_err("Integer value %ld overflow bounds [%d, %d]", ival, INT_MIN, INT_MAX);
+            lex_err(lineno, columnno, "Integer value %ld overflow bounds [%d, %d]", ival, INT_MIN, INT_MAX);
         }
         t.type = INT;
         t.value.i = (int) ival;

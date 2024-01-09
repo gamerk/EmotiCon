@@ -9,8 +9,6 @@
 #include <stdarg.h>
 #include <vadefs.h>
 
-FILE* codefile;
-
 #define assert_fpos(line,col) {\
     if (lineno != line || columnno != col) {\
         ERROR("File position should be (line %u, col %u), but actually got (line %u, col %u)",\
@@ -69,49 +67,10 @@ int main(void){
         }
     }
 
-    //////////// File reading ////////////
-    codefile = fopen("test.txt", "r");
-
-    assert_fpos(0, 0);
-    assert(ungetch() == '\0');
-    assert_fpos(0, 0);
-    assert(getch() == 'a');
-    assert_fpos(0, 1);
-    assert(getch() == 'b');
-    assert_fpos(0, 2);
-    assert(ungetch() == 'b');
-    assert_fpos(0, 1);
-    assert(getch() == 'b');
-    assert_fpos(0, 2);
-    assert(getch() == 'c');
-    assert(getch() == '\n');
-    assert_fpos(1, 0);
-    assert(getch() == 'd');
-    assert_fpos(1, 1);
-    assert(getch() == 'e');
-    assert_fpos(1, 2);
-    assert(getch() == 'f');
-    assert_fpos(1, 3);
-    assert(getch() == '\n');
-    assert_fpos(2, 0);
-    assert(getch() == '\n');
-    assert_fpos(3, 0);
-    assert(getch() == 'g');
-    assert_fpos(3, 1);
-    assert(getch() == '\0');
-    assert_fpos(3, 1);
-    assert(ungetch() == '\0');
-    assert_fpos(3, 1);
-    assert(getch() == '\0');
-    assert_fpos(3, 1);
-    assert(getch() == '\0');
-    assert_fpos(3, 1);
-
-    fclose(codefile);
-
     ////////// Tokenizing /////////
-    reset_io();
-    codefile = fopen("test.txt", "r");
+    FILE *codefile = fopen("test.txt", "r");
+    unsigned int lineno = 0;
+    unsigned int columnno = 0;
 
     skip_ws(codefile, &lineno, &columnno);
     assert_fpos(0, 0);

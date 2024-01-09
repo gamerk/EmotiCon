@@ -100,14 +100,6 @@ typedef struct {
 
 char deobfuscate_emoticon(const char face[3]);
 
-extern unsigned int lineno;
-extern unsigned int columnno;
-
-char getch(void);
-char ungetch(void);
-char peekch(void);
-void reset_io(void);
-
 void skip_ws(FILE *f, unsigned int *line, unsigned int *col);
 char *get_lexme(FILE *f, unsigned int *col);
 Token lex_token(const char *s, unsigned int lineno, unsigned int columnno);
